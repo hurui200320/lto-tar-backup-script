@@ -1,6 +1,7 @@
 c/Windows
 c/hiberfil.sys
 c/pagefile.sys
+c/swapfile.sys
 **/$*
 */msys64
 */System Volume Information
