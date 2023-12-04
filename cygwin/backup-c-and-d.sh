@@ -39,15 +39,16 @@ echo "Preparing tape drive $TAPE"
 mt -f $TAPE compression 2
 checkError "Need power from admin!! Exit..."
 # Rewind to block 0
+echo "Rewinding..."
 mt -f $TAPE rewind
-checkError "Failed to enable compression"
+checkError "Failed to rewind"
 
 cd /cygdrive
 checkError "Failed to change directory to /cygdrive"
 
 echo "Starting backup C drive..."
 # backup c drive, but not Windows folder
-tar -b $BLOCK --exclude-from $folder/backup-exclude.txt -cf $TAPE c 
+tar -b $BLOCK --exclude-from $folder/backup-exclude.txt -cf - c | dd of=$TAPE bs=4M status=progress
 if [ $? -eq 2 ]; then
 	# NOTE: tar will return 2 if some file cannot be opened.
 	# 		Here we just alert user and not crash.
@@ -58,7 +59,7 @@ ok "C drive backup finished!"
 
 echo "Starting backup D drive..."
 # backup d drive
-tar -b $BLOCK --exclude-from $folder/backup-exclude.txt -cf $TAPE d
+tar -b $BLOCK --exclude-from $folder/backup-exclude.txt -cf - d | dd of=$TAPE bs=4M status=progress
 if [ $? -eq 2 ]; then
 	err "Tar command has a fatal error when backup D drive"
 fi
