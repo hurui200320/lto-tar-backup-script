@@ -1,2 +1,4 @@
 # lto-tar-backup-script
-Bash script for LTO backup using tar
+My bash script for backing up my PC to my LTO 6 tape drive.
+
+Currently I'm using Windows, thus I use Cygwin. See [Cygwin](/cygwin) for more info.
