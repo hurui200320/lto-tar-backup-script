@@ -5,12 +5,14 @@ GREEN=$'\e[32m'
 YELLOW=$'\e[33m'
 NORMAL=$'\e[0m'
 
+TEMP_FOLDER=${1:-/tmp}
+echo "Using temp dir: $TEMP_FOLDER"
 TAPE=/dev/nst0
-# Block size = BLOCK * 512, 1MB per record.
+# Block size = BLOCK * 512, 2MB per record.
 # This will waste a lot of space with small files,
 # hopefully the compression will fix it.
 # Large block size will feed more data to drive and keep it spinning
-BLOCK=2048
+BLOCK=4096
 
 # Log for err
 err() {
@@ -32,11 +34,27 @@ checkError(){
 	fi
 }
 
+# backup a drive under /cygwin
+backup() {
+	echo "Starting backup ${1}..."
+	# I notice the pipe in Cygwin perform very bad
+	# thus need to write somewhere and then dd from disk
+	# other wise can only get 70MB/s while tape drive can do 160MB/s
+	tar -b $BLOCK --zstd --exclude *.tmp --exclude-from $folder/backup-exclude.txt -cf - ${1} | dd of=$TEMP_FOLDER/${1}.tmp bs=4M status=progress
+	dd if=g/${1} of=$TAPE bs=4M status=progress
+	if [ $? -eq 2 ]; then
+		err "Tar command has a fatal error when backup ${1}"
+	fi
+	mt -f $TAPE tell
+	rm -rf $TEMP_FOLDER/${1}.tmp
+	ok "${1} backup finished!"
+}
+
 folder=$(PWD)
 
 echo "Preparing tape drive $TAPE"
-# enable compression
-mt -f $TAPE compression 2
+# disable compression, we're using zstd
+mt -f $TAPE compression 0
 checkError "Need power from admin!! Exit..."
 # Rewind to block 0
 echo "Rewinding..."
@@ -46,32 +64,13 @@ checkError "Failed to rewind"
 cd /cygdrive
 checkError "Failed to change directory to /cygdrive"
 
-echo "Starting backup C drive..."
-# backup c drive, but not Windows folder
-tar -b $BLOCK --exclude-from $folder/backup-exclude.txt -cf - c | dd of=$TAPE bs=4M status=progress
-if [ $? -eq 2 ]; then
-	# NOTE: tar will return 2 if some file cannot be opened.
-	# 		Here we just alert user and not crash.
-	err "Tar command has a fatal error when backup C drive"
-fi
-mt -f $TAPE tell
-ok "C drive backup finished!"
 
-echo "Starting backup D drive..."
-# backup d drive
-tar -b $BLOCK --exclude-from $folder/backup-exclude.txt -cf - d | dd of=$TAPE bs=4M status=progress
-if [ $? -eq 2 ]; then
-	err "Tar command has a fatal error when backup D drive"
-fi
-mt -f $TAPE tell
-ok "D drive backup finished!"
+backup c
+backup d
+
 
 # write the eof again, two will end the tape
 mt -f $TAPE weof 1
 checkError "Failed to finish tape with another EOF marker"
-
-# disable encryption and compress
-echo "Cleaning up..."
-mt -f $TAPE compression 0
 
 ok "Done!"

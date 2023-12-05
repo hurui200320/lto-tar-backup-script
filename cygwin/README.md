@@ -3,6 +3,12 @@ These are scripts for running in Cygwin.
 
 Note: Those scripts requires Cygwin running as administrator. Command `mt` and `LTOEnc` need those power to control the tape drive.
 
+## Status
+
+Since cygwin's pipe has severe performance issue, I have to write the middle tar file to a temp folder, then dd it to the tape drive. Thus I'm looking for a native windows solution.
+
+> When testing, `dd if=file of=/dev/nst0 bs=4M` gives full speed (160MB/s), but then using `dd if=file bs=8M | dd of=/dev/nst0 bs=4M` gives only half the speed (65MB/s). I assume the pipe implementation is hard/bad on windows.
+
 ## Requirement
 
 + Cygwin running as administrator
