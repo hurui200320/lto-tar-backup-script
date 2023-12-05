@@ -1,0 +1,16 @@
+Windows
+hiberfil.sys
+pagefile.sys
+swapfile.sys
+ProgramData\ESET
+ProgramData\Microsoft
+ProgramData\Packages\Microsoft*
+Program Files\Adobe
+Program Files\Epic Games
+Program Files\ESET
+Program Files\Windows Defender Advanced Threat Protection
+Users\*\AppData\Local\Microsoft
+Users\*\AppData\Local\ESET
+Users\*\AppData\Local\Packages\Microsoft
+$*
+System Volume Information
