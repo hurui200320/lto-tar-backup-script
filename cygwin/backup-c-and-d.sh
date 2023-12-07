@@ -36,7 +36,7 @@ checkError(){
 backup() {
 	echo "Starting backup ${1}..."
 	# Pipe in Cygwin performs very bad, thus we have to write to tape drive directly
-	tar -b $BLOCK --exclude *.tmp --exclude-from $folder/backup-exclude.txt -cf $TAPE ${1}
+	tar -b $BLOCK --exclude *.tmp --exclude-from $folder/backup-exclude.txt -cvf $TAPE ${1}
 	if [ $? -eq 2 ]; then
 		err "Tar command has a fatal error when backup ${1}"
 	fi
