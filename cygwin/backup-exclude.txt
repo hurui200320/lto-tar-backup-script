@@ -2,6 +2,15 @@ c/Windows
 c/hiberfil.sys
 c/pagefile.sys
 c/swapfile.sys
+c/ProgramData/ESET
+c/ProgramData/Microsoft
+c/ProgramData/Packages/Microsoft*
+c/Program Files/Adobe
+c/Program Files/Epic Games
+c/Program Files/ESET
+c/Program Files/Windows Defender Advanced Threat Protection
+c/Users/*/AppData/Local/Microsoft
+c/Users/*/AppData/Local/ESET
+c/Users/*/AppData/Local/Packages\Microsoft
 **/$*
-*/msys64
 */System Volume Information

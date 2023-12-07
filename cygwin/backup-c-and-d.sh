@@ -5,8 +5,6 @@ GREEN=$'\e[32m'
 YELLOW=$'\e[33m'
 NORMAL=$'\e[0m'
 
-TEMP_FOLDER=${1:-/tmp}
-echo "Using temp dir: $TEMP_FOLDER"
 TAPE=/dev/nst0
 # Block size = BLOCK * 512, 2MB per record.
 # This will waste a lot of space with small files,
@@ -37,24 +35,20 @@ checkError(){
 # backup a drive under /cygwin
 backup() {
 	echo "Starting backup ${1}..."
-	# I notice the pipe in Cygwin perform very bad
-	# thus need to write somewhere and then dd from disk
-	# other wise can only get 70MB/s while tape drive can do 160MB/s
-	tar -b $BLOCK --zstd --exclude *.tmp --exclude-from $folder/backup-exclude.txt -cf - ${1} | dd of=$TEMP_FOLDER/${1}.tmp bs=4M status=progress
-	dd if=g/${1} of=$TAPE bs=4M status=progress
+	# Pipe in Cygwin performs very bad, thus we have to write to tape drive directly
+	tar -b $BLOCK --exclude *.tmp --exclude-from $folder/backup-exclude.txt -cf $TAPE ${1}
 	if [ $? -eq 2 ]; then
 		err "Tar command has a fatal error when backup ${1}"
 	fi
 	mt -f $TAPE tell
-	rm -rf $TEMP_FOLDER/${1}.tmp
 	ok "${1} backup finished!"
 }
 
 folder=$(PWD)
 
 echo "Preparing tape drive $TAPE"
-# disable compression, we're using zstd
-mt -f $TAPE compression 0
+# enable compression
+mt -f $TAPE compression 2
 checkError "Need power from admin!! Exit..."
 # Rewind to block 0
 echo "Rewinding..."
@@ -72,5 +66,7 @@ backup d
 # write the eof again, two will end the tape
 mt -f $TAPE weof 1
 checkError "Failed to finish tape with another EOF marker"
+# reset compression
+mt -f $TAPE compression 0
 
 ok "Done!"
