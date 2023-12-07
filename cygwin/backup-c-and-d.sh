@@ -12,6 +12,8 @@ TAPE=/dev/nst0
 # Large block size will feed more data to drive and keep it spinning
 BLOCK=4096
 
+date=$(date +"%Y-%m-%dT%H:%M:%S%z")
+
 # Log for err
 err() {
 	>&2 echo "${RED}${1}${NORMAL}"
@@ -36,7 +38,7 @@ checkError(){
 backup() {
 	echo "Starting backup ${1}..."
 	# Pipe in Cygwin performs very bad, thus we have to write to tape drive directly
-	tar -b $BLOCK --exclude *.tmp --exclude-from $folder/backup-exclude.txt -cvf $TAPE ${1}
+	tar -b $BLOCK -V $date --exclude *.tmp --exclude-from $folder/backup-exclude.txt -cvf $TAPE ${1}
 	if [ $? -eq 2 ]; then
 		err "Tar command has a fatal error when backup ${1}"
 	fi
