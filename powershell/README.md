@@ -3,6 +3,10 @@ These are scripts for running in PowerShell.
 
 Note: Those scripts requires PowerShell 7.4 or later running as administrator. When backing up C drive, you need extra permission to visit a folder.
 
+## Status
+
+Windows suck. I change back to cygwin.
+
 ## Requirement
 
 + PowerShell 7.4 or later running as administrator
