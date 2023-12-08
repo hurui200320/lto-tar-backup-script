@@ -12,7 +12,7 @@ TAPE=/dev/nst0
 # Large block size will feed more data to drive and keep it spinning
 BLOCK=4096
 
-date=$(date +"%Y-%m-%dT%H:%M:%S%z")
+date=$(date +"%Y-%m-%dZ%H:%M:%S" -u)
 
 # Log for err
 err() {
